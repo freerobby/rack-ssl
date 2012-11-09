@@ -81,6 +81,13 @@ class TestSSL < Test::Unit::TestCase
       last_response.headers['Set-Cookie'].split("\n")
   end
 
+  def test_do_not_flag_cookies_as_secure
+    self.app = Rack::SSL.new(default_app, :flag_cookies_as_secure => false)
+    get "https://example.org/"
+    assert_equal ["id=1; path=/", "token=abc; path=/; secure; HttpOnly" ],
+      last_response.headers['Set-Cookie'].split("\n")
+  end
+
   def test_flag_cookies_as_secure_at_end_of_line
     self.app = Rack::SSL.new(lambda { |env|
       headers = {
